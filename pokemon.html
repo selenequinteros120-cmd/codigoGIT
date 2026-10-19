@@ -1,0 +1,80 @@
+html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscador Pokémon</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Volver al Inicio</a>
+        </nav>
+    </header>
+    
+    <main class="container">
+        <h1>Buscador y Generador Pokémon</h1>
+        
+        <!-- Buscador por nombre o número (ID) y botón aleatorio -->
+        <div class="search-box">
+            <input type="text" id="pokemonInput" placeholder="Ej: pikachu o 25...">
+            <button id="searchBtn">Buscar</button>
+            <button id="randomBtn">Aleatorio</button>
+        </div>
+
+        
+        <div id="pokemonCard" class="card">
+            <img id="pokeImg" src="" alt="Imagen del Pokémon">
+            <h2 id="pokeName">Nombre</h2>
+            <p>Tipo: <span id="pokeType">-</span></p>
+        </div>
+    </main>
+
+    <script>
+        const urlAPI = "https://pokeapi.co/api/v2/pokemon/";
+
+        const img = document.getElementById("pokeImg");
+        const nameElem = document.getElementById("pokeName");
+        const typeElem = document.getElementById("pokeType");
+        const input = document.getElementById("pokemonInput");
+        const searchBtn = document.getElementById("searchBtn");
+        const randomBtn = document.getElementById("randomBtn");
+
+        // Función asíncrona para obtener el Pokémon por nombre o número
+        async function obtenerPokemon(termino) {
+            try {
+                // Convertimos a minúsculas por si escriben el nombre, los números quedan igual
+                const valorBusqueda = typeof termino === 'string' ? termino.toLowerCase() : termino;
+                const respuesta = await fetch(urlAPI + valorBusqueda);
+                
+                if (!respuesta.ok) throw new Error("Pokémon no encontrado");
+                const datos = await respuesta.json();
+
+                // Mostrar datos en la tarjeta (Card)
+                nameElem.textContent = `#${datos.id} - ${datos.name.toUpperCase()}`;
+                img.src = datos.sprites.front_default;
+                typeElem.textContent = datos.types.map(t => t.type.name).join(", ");
+            } catch (error) {
+                alert("No se encontró el Pokémon. Prueba con otro nombre o número (1-151).");
+                console.error(error);
+            }
+        }
+
+        searchBtn.addEventListener("click", () => {
+            if (input.value.trim() !== "") {
+                obtenerPokemon(input.value.trim());
+            }
+        });
+
+       
+        randomBtn.addEventListener("click", () => {
+            const idAleatorio = Math.floor(Math.random() * 151) + 1;
+            obtenerPokemon(idAleatorio);
+        });
+
+    
+        obtenerPokemon(1);
+    </script>
+</body>
+</html>
